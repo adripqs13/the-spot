@@ -29,6 +29,9 @@
     .card-label { color: #aaa69e; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; }
     .status { color: #d5b477; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
     .holder { position: relative; z-index: 1; text-align:center; }
+    .logo-frame { width:72px; height:72px; margin:0 auto 12px; border:1px solid rgba(255,255,255,.22); display:flex; align-items:center; justify-content:center; overflow:hidden; background:rgba(255,255,255,.05); }
+    .logo-frame img { width:100%; height:100%; object-fit:contain; }
+    .logo-placeholder { color:#aaa69e; font:27px Georgia,serif; }
     .holder-name { font-family: Georgia, serif; font-size: clamp(44px, 5vw, 70px); letter-spacing: -.05em; margin: 12px 0 10px; overflow-wrap:anywhere; }
     .description { color:#bdb9b1; font-size:13px; line-height:1.45; max-width:250px; margin:0 auto 14px; }
     .holder-links { display:flex; justify-content:center; gap:14px; flex-wrap:wrap; font-size:11px; }
@@ -45,6 +48,20 @@
     button { width:100%; padding: 18px 16px; border: 0; background: var(--gold); color: white; font-weight:700; font-size: 11px; letter-spacing:.13em; cursor:pointer; transition:.2s; }
     button:hover { background:#8e6b35; transform: translateY(-2px); }
     .rule { color: var(--muted); font-size: 11px; line-height:1.5; margin-top: 14px; }
+    .reclaim-panel { display:none; border:1px solid var(--line); padding:23px; margin-top:28px; background:rgba(255,255,255,.25); }
+    .reclaim-panel.visible { display:block; }
+    .reclaim-panel h4 { margin-bottom:10px; }
+    .reclaim-panel p { color:var(--muted); font-size:12px; line-height:1.5; margin:7px 0; }
+    .reclaim-panel .reclaim-title { color:var(--ink); font:26px Georgia,serif; letter-spacing:-.04em; margin:0 0 10px; }
+    .reclaim-facts { display:grid; grid-template-columns:1fr 1fr; gap:8px 20px; margin:16px 0; }
+    .reclaim-facts span { color:var(--muted); font-size:11px; }
+    .reclaim-facts strong { display:block; color:var(--ink); font-size:15px; margin-top:3px; }
+    .reclaim-actions { display:flex; gap:10px; align-items:flex-end; }
+    .reclaim-actions label { flex:1; margin:0; }
+    .reclaim-actions button { flex:1; }
+    .reclaim-note { font-size:10px !important; }
+    .learn-link { display:inline-block; color:var(--muted); font-size:11px; text-decoration:none; border-bottom:1px solid var(--line); padding-bottom:2px; margin-top:8px; }
+    .learn-link:hover { color:var(--ink); border-color:var(--gold); }
     .history { border-top: 1px solid var(--line); padding-top: 35px; }
     .history-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 25px; }
     h3 { font-family: Georgia, serif; font-size: 36px; font-weight:400; letter-spacing:-.04em; margin:0; }
@@ -62,6 +79,10 @@
     input, textarea { width:100%; padding:12px 0; border:0; border-bottom:1px solid var(--line); background:transparent; font:15px Arial; outline:none; }
     textarea { min-height:60px; resize:vertical; }
     .offer-field { font-size:30px; color:var(--ink); letter-spacing:-.04em; }
+    .file-input { font-size:12px; padding:8px 0; }
+    .image-preview { display:none; align-items:center; gap:10px; color:var(--muted); font-size:11px; margin-top:8px; }
+    .image-preview.visible { display:flex; }
+    .image-preview img { width:38px; height:38px; object-fit:contain; border:1px solid var(--line); }
     .offer-summary { display:flex; justify-content:space-between; gap:20px; margin:22px 0 4px; color:var(--muted); font-size:12px; }
     .offer-summary strong { color:var(--ink); font-size:16px; }
     .error { min-height:17px; color:#9d4b3c; font-size:11px; margin:7px 0 0; }
@@ -72,8 +93,12 @@
     .form-view.hidden { display:none; }
     .success { text-align:center; padding:22px 0 10px; }
     .success-mark { color:var(--gold); font-size:35px; }
+    .info-steps { display:grid; gap:18px; margin:24px 0; }
+    .info-step b { display:block; color:var(--gold); font-size:10px; letter-spacing:.15em; margin-bottom:5px; }
+    .info-step span { color:var(--muted); font-size:13px; line-height:1.45; }
+    .info-footer { font:24px Georgia,serif; letter-spacing:-.04em; margin:22px 0 10px; }
     @media(max-width:850px) { main { grid-template-columns:1fr; min-height:0; padding:70px 0; gap:45px; } .intro { text-align:center; } .subtle { margin:auto; } h1 { margin:18px 0; } .takeover { padding:0; } .columns { gap:20px; } }
-    @media(max-width:520px) { .shell { padding:22px 20px 50px; } .edition { display:none; } .audience { justify-content:flex-start; flex-wrap:wrap; } .spot-card { padding:28px 24px; min-height:370px; } .columns { grid-template-columns:1fr; gap:35px; } .row { grid-template-columns:1fr 70px 75px; } .modal { padding:26px 22px; } }
+    @media(max-width:520px) { .shell { padding:22px 20px 50px; } .edition { display:none; } .audience { justify-content:flex-start; flex-wrap:wrap; } .spot-card { padding:28px 24px; min-height:370px; } .columns { grid-template-columns:1fr; gap:35px; } .row { grid-template-columns:1fr 70px 75px; } .modal { padding:26px 22px; } .reclaim-actions { flex-direction:column; align-items:stretch; } .reclaim-actions button { width:100%; } }
   </style>
 </head>
 <body>
@@ -83,10 +108,10 @@
       <section class="intro"><div class="eyebrow">One placement. One holder.</div><h1>There<br>is only<br>one.</h1><p class="tagline">The internet's most coveted billboard.</p><p class="subtle">A single promotional space. Take it by offering more than the current holder.</p></section>
       <section class="spot-card">
         <div class="card-top"><span class="card-label">Current holder</span><span class="status">● Live</span></div>
-        <div class="holder"><div class="holder-name" id="holder">@Carlos</div><div class="description" id="description">Building the next generation of technology.</div><div class="price"><small>$</small><span id="price">10</span></div><div class="holder-links"><a id="socialLink" href="https://x.com/Carlos" target="_blank" rel="noopener noreferrer">@Carlos</a><a id="websiteLink" href="https://example.com" target="_blank" rel="noopener noreferrer">example.com</a></div></div>
+        <div class="holder"><div class="logo-frame" id="logoFrame"><span class="logo-placeholder">✦</span></div><div class="holder-name" id="holder">@Carlos</div><div class="description" id="description">Building the next generation of technology.</div><div class="price"><small>$</small><span id="price">10</span></div><div class="holder-links"><a id="socialLink" href="https://x.com/Carlos" target="_blank" rel="noopener noreferrer">@Carlos</a><a id="websiteLink" href="https://example.com" target="_blank" rel="noopener noreferrer">example.com</a></div></div>
         <div class="reign"><div class="card-label">Reign</div><div class="timer" id="timer">00:00:00</div></div>
       </section>
-      <section class="takeover"><div class="eyebrow">Your move</div><h2>Take<br>the spot.</h2><p class="next">Current price: <strong id="currentPrice">$10</strong></p><button id="takeBtn">TAKE THE SPOT</button><p class="rule">Minimum offer: <strong id="minimumOffer">$11</strong></p></section>
+      <section class="takeover"><div class="eyebrow">Your move</div><h2>Take<br>the spot.</h2><p class="next">Current price: <strong id="currentPrice">$10</strong></p><button id="takeBtn">TAKE THE SPOT</button><p class="rule">Minimum offer: <strong id="minimumOffer">$11</strong></p><div class="reclaim-panel" id="reclaimPanel"><h4>24-hour reclaim</h4><div class="reclaim-title">You've been dethroned.</div><p id="reclaimMessage"></p><div class="reclaim-facts"><span>Your previous contribution<strong id="reclaimContribution">$0</strong></span><span>Current Spot price<strong id="reclaimPrice">$0</strong></span><span>Time remaining<strong id="reclaimTimer">24:00:00</strong></span><span>You need<strong id="reclaimMinimum">$0</strong></span></div><div class="reclaim-actions"><label>YOUR ADDITIONAL OFFER<input class="offer-field" id="reclaimOffer" type="number" min="1" step="1" placeholder="$ amount" /></label><button id="reclaimBtn">RECLAIM THE SPOT</button></div><p class="reclaim-note">Your previous contribution can only be applied toward reclaiming THE SPOT during the 24-hour reclaim period.</p><div class="error" id="reclaimError"></div></div><a href="#" class="learn-link" id="learnLink">24-HOUR RECLAIM · Learn how it works →</a></section>
     </main>
     <section class="history">
       <div class="history-head"><h3>Hall of Fame</h3><span>Past holders, permanent record</span></div>
@@ -95,6 +120,7 @@
   </div>
   <div class="modal-wrap" id="modal"><div class="modal">
     <div class="form-view" id="formView"><h2>Make your claim.</h2><p>Tell the world who is taking the only promotional spot available.</p>
+      <label>Profile / company logo</label><input class="file-input" id="logoInput" type="file" accept="image/png,image/jpeg,image/webp" /><div class="image-preview" id="imagePreview"><img id="previewImage" alt="Selected logo preview" /><span>Logo selected for this demo</span></div>
       <label>Display name</label><input id="name" placeholder="Your name or brand" />
       <label>X / Social username</label><input id="username" placeholder="@username" />
       <label>Website URL</label><input id="website" placeholder="https://" />
@@ -105,32 +131,47 @@
     </div>
     <div class="confirm-view" id="confirmView"><h2>You are about to take THE SPOT.</h2><p>Current price: <b id="confirmCurrent">$10</b><br>Your price: <b id="confirmNext">$11</b></p><div class="modal-actions"><button class="cancel" id="back">BACK</button><button id="confirm">CONFIRM TAKEOVER</button></div></div>
     <div class="confirm-view success" id="successView"><div class="success-mark">✦</div><h2>THE SPOT HAS BEEN TAKEN.</h2><p id="successText"></p><button id="closeSuccess">BACK TO THE SPOT</button></div>
+    <div class="confirm-view" id="infoView"><h2>HOW THE SPOT WORKS</h2><div class="info-steps"><div class="info-step"><b>01 — TAKE IT</b><span>Make an offer higher than the current holder and become the new holder.</span></div><div class="info-step"><b>02 — GET DETHRONED</b><span>If someone takes your Spot, your previous contribution remains protected for 24 hours.</span></div><div class="info-step"><b>03 — RECLAIM IT</b><span>Within 24 hours, use your previous contribution toward a new offer and take THE SPOT back.</span></div></div><div class="info-footer">Your contribution counts. Your clock is ticking.</div><p>Your previous contribution can only be applied toward reclaiming THE SPOT during the 24-hour reclaim period. It is not a withdrawable balance.</p><button id="closeInfo">BACK TO THE SPOT</button></div>
   </div></div>
   <script>
-    let holder = { displayName:'Carlos', username:'Carlos', website:'https://example.com', description:'Building the next generation of technology.' };
-    let price = 10, reignStart = Date.now();
-    let history = [{name:'Alex',price:8,duration:12180},{name:'Maria',price:6,duration:6120},{name:'David',price:4,duration:19080},{name:'John',price:2,duration:2520}];
+    // Demo state is intentionally separated for a future Supabase data model.
+    let currentHolder = { displayName:'Carlos', username:'Carlos', website:'https://example.com', description:'Building the next generation of technology.', logoDataUrl:null };
+    let currentPrice = 10, reignStartTimestamp = Date.now(), reclaimState = null;
+    let holderHistory = [{name:'Alex',price:8,duration:12180},{name:'Maria',price:6,duration:6120},{name:'David',price:4,duration:19080},{name:'John',price:2,duration:2520}];
+    const reclaimDurationMs = 24 * 60 * 60 * 1000;
     const $ = id => document.getElementById(id);
     function duration(sec) { let h=Math.floor(sec/3600), m=Math.floor(sec%3600/60), s=sec%60; return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
     function money(value) { return '$' + Number(value).toLocaleString('en-US'); }
     function websiteLabel(url) { try { return new URL(url).hostname.replace(/^www\./,''); } catch { return url; } }
     function xUrl(username) { return 'https://x.com/' + username.replace(/^@/,''); }
+    function renderLogo() { $('logoFrame').innerHTML=currentHolder.logoDataUrl ? `<img src="${currentHolder.logoDataUrl}" alt="Current holder logo">` : '<span class="logo-placeholder">✦</span>'; }
     function render() {
-      $('holder').textContent='@'+holder.username; $('description').textContent=holder.description.slice(0,120); $('price').textContent=Number(price).toLocaleString('en-US'); $('currentPrice').textContent=money(price); $('minimumOffer').textContent=money(price+1); $('takeBtn').textContent='TAKE THE SPOT';
-      $('socialLink').textContent='@'+holder.username.replace(/^@/,''); $('socialLink').href=xUrl(holder.username); $('websiteLink').textContent=websiteLabel(holder.website); $('websiteLink').href=holder.website;
+      $('holder').textContent='@'+currentHolder.username; $('description').textContent=currentHolder.description.slice(0,120); $('price').textContent=Number(currentPrice).toLocaleString('en-US'); $('currentPrice').textContent=money(currentPrice); $('minimumOffer').textContent=money(currentPrice+1);
+      $('socialLink').textContent='@'+currentHolder.username.replace(/^@/,''); $('socialLink').href=xUrl(currentHolder.username); $('websiteLink').textContent=websiteLabel(currentHolder.website); $('websiteLink').href=currentHolder.website; renderLogo();
       const rows = list => list.map(x=>`<div class="row"><span>@${x.name}</span><span>${money(x.price)}</span><span>${duration(x.duration)}</span></div>`).join('');
-      $('longest').innerHTML=rows([...history].sort((a,b)=>b.duration-a.duration).slice(0,5)); $('highest').innerHTML=rows([...history].sort((a,b)=>b.price-a.price).slice(0,5));
+      $('longest').innerHTML=rows([...holderHistory].sort((a,b)=>b.duration-a.duration).slice(0,5)); $('highest').innerHTML=rows([...holderHistory].sort((a,b)=>b.price-a.price).slice(0,5)); renderReclaim();
     }
-    function updateOfferLabels(){ $('modalCurrent').textContent=money(price); $('modalMinimum').textContent=money(price+1); $('offer').min=price+1; $('offer').placeholder=money(price+1); $('offerError').textContent=''; }
-    setInterval(()=>{ $('timer').textContent=duration(Math.floor((Date.now()-reignStart)/1000)); },1000); render();
+    function updateOfferLabels(){ $('modalCurrent').textContent=money(currentPrice); $('modalMinimum').textContent=money(currentPrice+1); $('offer').min=currentPrice+1; $('offer').placeholder=money(currentPrice+1); $('offerError').textContent=''; }
+    function renderReclaim() {
+      if (!reclaimState) { $('reclaimPanel').classList.remove('visible'); return; }
+      const remaining=Math.max(0,reclaimState.expiresAt-Date.now()), minimum=Math.max(1,currentPrice-reclaimState.previousContribution);
+      $('reclaimPanel').classList.add('visible'); $('reclaimMessage').textContent=`@${currentHolder.username} just took THE SPOT for ${money(currentPrice)}.`;
+      $('reclaimContribution').textContent=money(reclaimState.previousContribution); $('reclaimPrice').textContent=money(currentPrice); $('reclaimTimer').textContent=duration(Math.floor(remaining/1000)); $('reclaimMinimum').textContent=money(minimum); $('reclaimOffer').min=minimum; $('reclaimOffer').placeholder=money(minimum);
+      if (remaining<=0) { $('reclaimPanel').innerHTML='<h4>Reclaim window expired</h4><div class="reclaim-title">Reclaim window expired.</div><p>Your previous contribution can no longer be used to reclaim THE SPOT.</p><p class="reclaim-note">If you want to take THE SPOT again, make a completely new offer based on the current price.</p>'; return; }
+    }
+    setInterval(()=>{ $('timer').textContent=duration(Math.floor((Date.now()-reignStartTimestamp)/1000)); renderReclaim(); },1000); render();
     let simulatedVisitors = 1284;
     setInterval(()=>{ simulatedVisitors=Math.max(200,Math.min(2000,simulatedVisitors+Math.floor(Math.random()*41)-20)); $('visitors').textContent=simulatedVisitors.toLocaleString('en-US'); },7000);
-    function openModal(){ updateOfferLabels(); $('modal').classList.add('open'); $('formView').classList.remove('hidden'); $('confirmView').classList.remove('visible'); $('successView').classList.remove('visible'); }
+    function openModal(){ updateOfferLabels(); $('modal').classList.add('open'); $('formView').classList.remove('hidden'); $('confirmView').classList.remove('visible'); $('successView').classList.remove('visible'); $('infoView').classList.remove('visible'); }
     $('takeBtn').onclick=openModal; $('cancel').onclick=()=> $('modal').classList.remove('open');
-    $('review').onclick=()=>{ const offer=Number($('offer').value); $('offerError').textContent=''; if(!$('username').value.trim() || !$('name').value.trim()) { $('offerError').textContent='Add a display name and username to continue.'; return; } if(!Number.isInteger(offer) || offer<=price) { $('offerError').textContent=`Your offer must be at least ${money(price+1)}.`; return; } $('confirmCurrent').textContent=money(price); $('confirmNext').textContent=money(offer); $('formView').classList.add('hidden'); $('confirmView').classList.add('visible'); };
+    $('logoInput').onchange=event=>{ const file=event.target.files[0]; $('offerError').textContent=''; if(!file) return; if(!['image/png','image/jpeg','image/webp'].includes(file.type)) { event.target.value=''; $('offerError').textContent='Please choose a PNG, JPG, JPEG, or WebP image.'; return; } if(file.size>5*1024*1024) { event.target.value=''; $('offerError').textContent='That image is larger than the 5 MB demo limit.'; return; } const reader=new FileReader(); reader.onload=()=>{ $('previewImage').src=reader.result; $('imagePreview').classList.add('visible'); }; reader.readAsDataURL(file); };
+    $('review').onclick=()=>{ const offer=Number($('offer').value); $('offerError').textContent=''; if(!$('username').value.trim() || !$('name').value.trim()) { $('offerError').textContent='Add a display name and username to continue.'; return; } if(!Number.isInteger(offer) || offer<=currentPrice) { $('offerError').textContent=`Your offer must be at least ${money(currentPrice+1)}.`; return; } $('confirmCurrent').textContent=money(currentPrice); $('confirmNext').textContent=money(offer); $('formView').classList.add('hidden'); $('confirmView').classList.add('visible'); };
     $('back').onclick=()=>{ $('confirmView').classList.remove('visible'); $('formView').classList.remove('hidden'); };
-    $('confirm').onclick=()=>{ const old=holder, oldPrice=price, newPrice=Number($('offer').value); history.push({name:old.username,price:oldPrice,duration:Math.floor((Date.now()-reignStart)/1000)}); holder={displayName:$('name').value.trim(),username:$('username').value.trim().replace(/^@/,''),website:$('website').value.trim() || 'https://example.com',description:$('message').value.trim().slice(0,120) || 'A new presence on the internet.'}; price=newPrice; reignStart=Date.now(); render(); $('confirmView').classList.remove('visible'); $('successView').classList.add('visible'); $('successText').innerHTML=`@${holder.username} is now the current holder.<br><br>Previous holder: @${old.username}<br>Previous price: ${money(oldPrice)}<br><br>New price: ${money(price)}`; };
-    $('closeSuccess').onclick=()=> $('modal').classList.remove('open');
+    function completeTakeover(newHolder,newPrice) { const old=currentHolder, oldPrice=currentPrice; holderHistory.push({name:old.username,price:oldPrice,duration:Math.floor((Date.now()-reignStartTimestamp)/1000)}); currentHolder=newHolder; currentPrice=newPrice; reignStartTimestamp=Date.now(); reclaimState={previousHolder:{...old},previousContribution:oldPrice,expiresAt:Date.now()+reclaimDurationMs}; render(); return {old,oldPrice}; }
+    $('confirm').onclick=()=>{ const newPrice=Number($('offer').value), result=completeTakeover({displayName:$('name').value.trim(),username:$('username').value.trim().replace(/^@/,''),website:$('website').value.trim() || 'https://example.com',description:$('message').value.trim().slice(0,120) || 'A new presence on the internet.',logoDataUrl:$('previewImage').src || null},newPrice); $('confirmView').classList.remove('visible'); $('successView').classList.add('visible'); $('successText').innerHTML=`@${currentHolder.username} is now the current holder.<br><br>Previous holder: @${result.old.username}<br>Previous price: ${money(result.oldPrice)}<br><br>New price: ${money(currentPrice)}`; };
+    $('reclaimBtn').onclick=()=>{ if(!reclaimState) return; const additional=Number($('reclaimOffer').value), minimum=Math.max(1,currentPrice-reclaimState.previousContribution); $('reclaimError').textContent=''; if(!Number.isInteger(additional) || additional<minimum) { $('reclaimError').textContent=`Your additional offer must be at least ${money(minimum)}.`; return; } const old=currentHolder, contribution=reclaimState.previousContribution, newPrice=contribution+additional; holderHistory.push({name:old.username,price:currentPrice,duration:Math.floor((Date.now()-reignStartTimestamp)/1000)}); currentHolder={...reclaimState.previousHolder}; currentPrice=newPrice; reignStartTimestamp=Date.now(); reclaimState=null; render(); $('reclaimError').textContent=`THE SPOT reclaimed for ${money(newPrice)}.`; };
+    $('learnLink').onclick=event=>{ event.preventDefault(); $('modal').classList.add('open'); $('formView').classList.add('hidden'); $('confirmView').classList.remove('visible'); $('successView').classList.remove('visible'); $('infoView').classList.add('visible'); };
+    $('closeSuccess').onclick=()=> $('modal').classList.remove('open'); $('closeInfo').onclick=()=> $('modal').classList.remove('open');
   </script>
 </body>
 </html>
