@@ -51,7 +51,9 @@ function normalizeHolder(row) {
 }
 function normalizeHistory(rows) {
   return (Array.isArray(rows) ? rows : []).map((row) => ({
-    name: String(pick(row, ["username", "x_username", "holder_username"], "Unknown")).replace(/^@/, ""),
+    name: String(
+  pick(row, ["holder_x_username", "holder_name", "username", "x_username", "holder_username"], "Unknown")
+).replace(/^@/, ""),
     price: Number(pick(row, ["price_paid", "price", "amount"], 0)),
     duration: secondsValue(pick(row, ["reign_duration_seconds", "duration_seconds", "duration"], 0)) ||
       Math.max(0, (new Date(pick(row, ["reign_ended_at", "ended_at"], 0)).getTime() - new Date(pick(row, ["reign_started_at", "started_at"], 0)).getTime()) / 1000),
