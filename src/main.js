@@ -301,22 +301,9 @@ async function submitTakeover() {
       result.reclaimToken
     );
   }
-
-  window.location.href = result.url;
-}
-
-const result = await response.json();
-
-$("review").disabled = false;
-
-if (!response.ok || !result.url) {
-  return showError(`Payment error: ${result.error || "Could not create Stripe Checkout."}`);
-}
-
 window.location.href = result.url;
-  await finishRemoteAction("Takeover completed, but the latest Spot could not be loaded.",
-    `@${$("username").value.trim().replace(/^@/, "")} is now the current holder.<br><br>Previous holder: @${previousUsername}<br>Previous price: ${money(previousPrice)}<br><br>New price: ${money(offer)}`);
 }
+  
 async function submitReclaim() {
   if (!reclaimState) return;
 
