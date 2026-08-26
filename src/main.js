@@ -160,9 +160,32 @@ async function loadRemoteState() {
     throw historyError;
   }
   let reclaim = null;
-  const { data: reclaimData, error: reclaimError } = await supabase.from("reclaim_windows").select("*").order("expires_at", { ascending: false }).limit(1).maybeSingle();
-  if (reclaimError) console.error("[The Spot] public.reclaim_windows query failed", reclaimError);
-  else reclaim = reclaimData;
+
+const { data: reclaimData, error: reclaimError } = await supabase
+  .from("reclaim_windows")
+  .select("*")
+  .eq("active", true)
+  .order("expires_at", { ascending: false })
+  .limit(1)
+  .maybeSingle();
+
+if (reclaimError) {
+  console.error("[The Spot] public.reclaim_windows query failed", reclaimError);
+} else {
+  reclaim = reclaimData;
+
+  console.info("[The Spot] Active reclaim window received", {
+    reclaim,
+    expiresAt: reclaim?.expires_at,
+    expiresTimestamp: reclaim?.expires_at
+      ? new Date(reclaim.expires_at).getTime()
+      : null,
+    nowTimestamp: Date.now(),
+    stillValid: reclaim?.expires_at
+      ? new Date(reclaim.expires_at).getTime() > Date.now()
+      : false,
+  });
+}
   console.info("[The Spot] public.spot row received", {
     holderName: pick(spot, ["holder_name", "display_name", "username"], null),
     currentPrice: pick(spot, ["current_price", "price", "amount"], null),
