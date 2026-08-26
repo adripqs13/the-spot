@@ -229,12 +229,12 @@ async function submitTakeover() {
   const previousUsername = currentHolder.username;
   const previousPrice = currentPrice;
   const response = await fetch(
-  `${SUPABASE_URL}/functions/v1/super-function`,
+  `${supabaseUrl}/functions/v1/super-function`,
   {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-      "apikey": SUPABASE_PUBLISHABLE_KEY,
+      "Authorization": `Bearer ${supabasePublishableKey}`,
+      "apikey": supabasePublishableKey,
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
