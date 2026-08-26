@@ -222,32 +222,88 @@ function reviewTakeover() {
 }
 async function submitTakeover() {
   const offer = Number($("offer").value);
-  if (!$("name").value.trim() || !$("username").value.trim()) return showError("Add a display name and username to continue.");
-  if (!Number.isInteger(offer) || offer <= currentPrice) return showError(`Your offer must be at least ${money(currentPrice + 1)}.`);
-  if (!supabase) return showError("Supabase is not configured. The demo cannot complete a takeover until the Vercel variables are added.");
+
+  if (
+    !$("name").value.trim() ||
+    !$("username").value.trim()
+  ) {
+    return showError(
+      "Add a display name and username to continue."
+    );
+  }
+
+  if (
+    !Number.isInteger(offer) ||
+    offer <= currentPrice
+  ) {
+    return showError(
+      `Your offer must be at least ${money(currentPrice + 1)}.`
+    );
+  }
+
+  if (!supabase) {
+    return showError(
+      "Supabase is not configured. The demo cannot complete a takeover until the Vercel variables are added."
+    );
+  }
+
   $("review").disabled = true;
+
   const previousUsername = currentHolder.username;
   const previousPrice = currentPrice;
+
   const response = await fetch(
-  `${supabaseUrl}/functions/v1/super-function`,
-  {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${supabasePublishableKey}`,
-      "apikey": supabasePublishableKey,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      type: "takeover",
-      amount: offer,
-      holderName: $("name").value.trim(),
-      username: $("username").value.trim().replace(/^@/, ""),
-      website: $("website").value.trim() || "https://example.com",
-      description: $("message").value.trim().slice(0, 120),
-      logoUrl: selectedLogoDataUrl || ""
-    })
+    `${supabaseUrl}/functions/v1/super-function`,
+    {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${supabasePublishableKey}`,
+        "apikey": supabasePublishableKey,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        type: "takeover",
+        amount: offer,
+        holderName: $("name").value.trim(),
+        username: $("username").value
+          .trim()
+          .replace(/^@/, ""),
+        website:
+          $("website").value.trim() ||
+          "https://example.com",
+        description:
+          $("message").value
+            .trim()
+            .slice(0, 120),
+        logoUrl:
+          selectedLogoDataUrl || ""
+      })
+    }
+  );
+
+  const result = await response.json();
+
+  $("review").disabled = false;
+
+  if (!response.ok || !result.url) {
+    return showError(
+      `Payment error: ${
+        result.error ||
+        "Could not create Stripe Checkout."
+      }`
+    );
   }
-);
+
+  // Save the private reclaim token before going to Stripe.
+  if (result.reclaimToken) {
+    localStorage.setItem(
+      "theSpotReclaimToken",
+      result.reclaimToken
+    );
+  }
+
+  window.location.href = result.url;
+}
 
 const result = await response.json();
 
