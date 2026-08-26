@@ -302,8 +302,7 @@ async function submitTakeover() {
       result.reclaimToken
     );
   }
-  alert(JSON.stringify(result, null, 2));
-return;
+  window.location.href = result.url;
 }
   
 async function submitReclaim() {
