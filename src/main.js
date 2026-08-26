@@ -282,6 +282,7 @@ async function submitTakeover() {
   );
 
   const result = await response.json();
+  console.log("[The Spot] Stripe checkout result:", result);
 
   $("review").disabled = false;
 
