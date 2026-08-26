@@ -204,11 +204,11 @@ async function submitTakeover() {
   const previousUsername = currentHolder.username;
   const previousPrice = currentPrice;
   const { error } = await supabase.rpc("take_spot", {
-    p_display_name: $("name").value.trim(),
-    p_username: $("username").value.trim().replace(/^@/, ""),
+    p_holder_name: $("name").value.trim(),
+    p_x_username: $("username").value.trim().replace(/^@/, ""),
     p_website: $("website").value.trim() || "https://example.com",
     p_description: $("message").value.trim().slice(0, 120),
-    p_logo_data_url: selectedLogoDataUrl,
+    p_logo_url: selectedLogoDataUrl,
     p_offer: offer,
   });
   $("review").disabled = false;
