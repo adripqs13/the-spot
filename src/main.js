@@ -108,7 +108,7 @@ function renderHistory() {
 function renderReclaim() {
   if (!reclaimState) { $("reclaimPanel").classList.remove("visible"); return; }
   const remaining = Math.max(0, reclaimState.expiresAt - Date.now());
-  const minimum = Math.max(1, currentPrice - reclaimState.previousContribution);
+  const minimum = Math.max(1, currentPrice - reclaimState.previousContribution + 1);
   $("reclaimPanel").classList.add("visible");
   $("reclaimMessage").textContent = `@${currentHolder.username} just took THE SPOT for ${money(currentPrice)}.`;
   $("reclaimContribution").textContent = money(reclaimState.previousContribution);
@@ -244,7 +244,7 @@ async function submitTakeover() {
 async function submitReclaim() {
   if (!reclaimState) return;
   const additional = Number($("reclaimOffer").value);
-  const minimum = Math.max(1, currentPrice - reclaimState.previousContribution);
+  const minimum = Math.max(1, currentPrice - reclaimState.previousContribution + 1);
   if (!Number.isInteger(additional) || additional < minimum) return $("reclaimError").textContent = `Your additional offer must be at least ${money(minimum)}.`;
   if (!supabase) return $("reclaimError").textContent = "Supabase is not configured. Reclaim is unavailable until the Vercel variables are added.";
   const { error } = await supabase.rpc("reclaim_spot", { p_additional_offer: additional });
