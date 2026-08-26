@@ -228,16 +228,36 @@ async function submitTakeover() {
   $("review").disabled = true;
   const previousUsername = currentHolder.username;
   const previousPrice = currentPrice;
-  const { error } = await supabase.rpc("take_spot", {
-    p_holder_name: $("name").value.trim(),
-    p_x_username: $("username").value.trim().replace(/^@/, ""),
-    p_website: $("website").value.trim() || "https://example.com",
-    p_description: $("message").value.trim().slice(0, 120),
-    p_logo_url: selectedLogoDataUrl,
-    p_offer: offer,
-  });
-  $("review").disabled = false;
-  if (error) return showError(`Takeover failed: ${error.message}`);
+  const response = await fetch(
+  `${SUPABASE_URL}/functions/v1/super-function`,
+  {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+      "apikey": SUPABASE_PUBLISHABLE_KEY,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      type: "takeover",
+      amount: offer,
+      holderName: $("name").value.trim(),
+      username: $("username").value.trim().replace(/^@/, ""),
+      website: $("website").value.trim() || "https://example.com",
+      description: $("message").value.trim().slice(0, 120),
+      logoUrl: selectedLogoDataUrl || ""
+    })
+  }
+);
+
+const result = await response.json();
+
+$("review").disabled = false;
+
+if (!response.ok || !result.url) {
+  return showError(`Payment error: ${result.error || "Could not create Stripe Checkout."}`);
+}
+
+window.location.href = result.url;
   await finishRemoteAction("Takeover completed, but the latest Spot could not be loaded.",
     `@${$("username").value.trim().replace(/^@/, "")} is now the current holder.<br><br>Previous holder: @${previousUsername}<br>Previous price: ${money(previousPrice)}<br><br>New price: ${money(offer)}`);
 }
