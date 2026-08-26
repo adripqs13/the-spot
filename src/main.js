@@ -319,13 +319,66 @@ window.location.href = result.url;
 }
 async function submitReclaim() {
   if (!reclaimState) return;
+
   const additional = Number($("reclaimOffer").value);
-  const minimum = Math.max(1, currentPrice - reclaimState.previousContribution + 1);
-  if (!Number.isInteger(additional) || additional < minimum) return $("reclaimError").textContent = `Your additional offer must be at least ${money(minimum)}.`;
-  if (!supabase) return $("reclaimError").textContent = "Supabase is not configured. Reclaim is unavailable until the Vercel variables are added.";
-  const { error } = await supabase.rpc("reclaim_spot", { p_additional_offer: additional });
-  if (error) return $("reclaimError").textContent = `Reclaim failed: ${error.message}`;
-  await finishRemoteAction("Reclaim completed, but the latest Spot could not be loaded.");
+
+  const minimum = Math.max(
+    1,
+    currentPrice -
+      reclaimState.previousContribution +
+      1
+  );
+
+  if (
+    !Number.isInteger(additional) ||
+    additional < minimum
+  ) {
+    return $("reclaimError").textContent =
+      `Your additional offer must be at least ${money(minimum)}.`;
+  }
+
+  if (!supabase) {
+    return $("reclaimError").textContent =
+      "Supabase is not configured. Reclaim is unavailable until the Vercel variables are added.";
+  }
+
+  const reclaimToken = localStorage.getItem(
+    "theSpotReclaimToken"
+  );
+
+  if (!reclaimToken) {
+    return $("reclaimError").textContent =
+      "Your reclaim token could not be found on this device.";
+  }
+
+  const response = await fetch(
+    `${supabaseUrl}/functions/v1/super-function`,
+    {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${supabasePublishableKey}`,
+        "apikey": supabasePublishableKey,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        type: "reclaim",
+        amount: additional,
+        reclaimToken: reclaimToken
+      })
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok || !result.url) {
+    return $("reclaimError").textContent =
+      `Payment error: ${
+        result.error ||
+        "Could not create Stripe Checkout."
+      }`;
+  }
+
+  window.location.href = result.url;
 }
 async function finishRemoteAction(fallbackMessage, successMessage = null) {
   try {
