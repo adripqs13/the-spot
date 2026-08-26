@@ -164,7 +164,6 @@ async function loadRemoteState() {
 const { data: reclaimData, error: reclaimError } = await supabase
   .from("reclaim_windows")
   .select("*")
-  .eq("active", true)
   .order("expires_at", { ascending: false })
   .limit(1)
   .maybeSingle();
