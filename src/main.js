@@ -302,7 +302,9 @@ async function submitTakeover() {
       result.reclaimToken
     );
   }
-window.location.href = result.url;
+  console.log("[The Spot] FULL CHECKOUT RESULT:", result);
+debugger;
+  window.location.href = result.url;
 }
   
 async function submitReclaim() {
