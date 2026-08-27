@@ -283,6 +283,14 @@ async function loadRemoteState() {
 
   render();
 }
+function openTakeover() {
+  updateOfferLabels();
+  $("modal").classList.add("open");
+  $("formView").classList.remove("hidden");
+  $("confirmView").classList.remove("visible");
+  $("successView").classList.remove("visible");
+  $("infoView").classList.remove("visible");
+}
 function reviewTakeover() {
   const offer = Number($("offer").value);
   if (!$("name").value.trim() || !$("username").value.trim()) return showError("Add a display name and username to continue.");
