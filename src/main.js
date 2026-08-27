@@ -144,116 +144,145 @@ function updateOfferLabels() {
   $("offerError").textContent = "";
 }
 async function loadRemoteState() {
-  if (!supabase) throw new Error("Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.");
+  if (!supabase) {
+    throw new Error(
+      "Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY."
+    );
+  }
+
   console.info("[The Spot] Supabase configuration", {
     urlPresent: Boolean(supabaseUrl),
     publishableKeyPresent: Boolean(supabasePublishableKey),
     urlOrigin: supabaseUrl ? new URL(supabaseUrl).origin : null,
   });
+
   console.info("[The Spot] Executing public.spot query");
-  const { data: spot, error: spotError } = await supabase.from("spot").select("*").limit(1).maybeSingle();
-  if (spotError) throw spotError;
-  if (!spot) throw new Error("The public.spot query returned no rows.");
-  const { data: history, error: historyError } = await supabase.from("spot_history").select("*");
-  if (historyError) {
-    console.error("[The Spot] public.spot_history query failed", historyError);
-    throw historyError;
-  }
-  let reclaim = null;
 
-const localReclaimToken = localStorage.getItem("theSpotReclaimToken");
-
-
-if (localReclaimToken) {
-  const { data: reclaimData, error: reclaimError } = await supabase
-    .from("reclaim_windows")
+  const { data: spot, error: spotError } = await supabase
+    .from("spot")
     .select("*")
-    .eq("reclaim_token", localReclaimToken)
-    .eq("active", true)
+    .limit(1)
     .maybeSingle();
 
-  if (reclaimError) {
-    console.error(
-      "[The Spot] Matching reclaim window query failed",
-      reclaimError
-    );
-  } else {
-    reclaim = reclaimData;
+  if (spotError) throw spotError;
+
+  if (!spot) {
+    throw new Error("The public.spot query returned no rows.");
   }
-}
 
-console.info("[The Spot] Matching reclaim window:", {
-  found: Boolean(reclaim),
-  tokenExists: Boolean(localReclaimToken),
-  expiresAt: reclaim?.expires_at || null,
-});
+  const { data: history, error: historyError } = await supabase
+    .from("spot_history")
+    .select("*");
 
-if (reclaimError) {
-  console.error("[The Spot] public.reclaim_windows query failed", reclaimError);
-} else {
-  reclaim = reclaimData;
+  if (historyError) {
+    console.error(
+      "[The Spot] public.spot_history query failed",
+      historyError
+    );
+    throw historyError;
+  }
 
-  console.info("[The Spot] Active reclaim window received", {
-    reclaim,
-    expiresAt: reclaim?.expires_at,
-    expiresTimestamp: reclaim?.expires_at
-      ? new Date(reclaim.expires_at).getTime()
-      : null,
-    nowTimestamp: Date.now(),
-    stillValid: reclaim?.expires_at
-      ? new Date(reclaim.expires_at).getTime() > Date.now()
-      : false,
+  /*
+   * RECLAIM
+   * Only look for the reclaim window whose token
+   * exists in THIS browser.
+   */
+
+  let reclaim = null;
+
+  const localReclaimToken = localStorage.getItem(
+    "theSpotReclaimToken"
+  );
+
+  console.info(
+    "[The Spot] Local reclaim token exists:",
+    Boolean(localReclaimToken)
+  );
+
+  if (localReclaimToken) {
+    const {
+      data: reclaimData,
+      error: reclaimError,
+    } = await supabase
+      .from("reclaim_windows")
+      .select("*")
+      .eq("reclaim_token", localReclaimToken)
+      .eq("active", true)
+      .maybeSingle();
+
+    if (reclaimError) {
+      console.error(
+        "[The Spot] Matching reclaim window query failed",
+        reclaimError
+      );
+    } else {
+      reclaim = reclaimData;
+    }
+  }
+
+  console.info("[The Spot] Matching reclaim window:", {
+    found: Boolean(reclaim),
+    tokenExists: Boolean(localReclaimToken),
+    expiresAt: reclaim?.expires_at || null,
   });
-}
+
   console.info("[The Spot] public.spot row received", {
-    holderName: pick(spot, ["holder_name", "display_name", "username"], null),
-    currentPrice: pick(spot, ["current_price", "price", "amount"], null),
+    holderName: pick(
+      spot,
+      ["holder_name", "display_name", "username"],
+      null
+    ),
+    currentPrice: pick(
+      spot,
+      ["current_price", "price", "amount"],
+      null
+    ),
   });
+
   currentHolder = normalizeHolder(spot);
-  currentPrice = Number(pick(spot, ["current_price", "price", "amount"], 0));
-  reignStartTimestamp = new Date(pick(spot, ["reign_started_at"], new Date().toISOString())).getTime();
+
+  currentPrice = Number(
+    pick(spot, ["current_price", "price", "amount"], 0)
+  );
+
+  reignStartTimestamp = new Date(
+    pick(
+      spot,
+      ["reign_started_at"],
+      new Date().toISOString()
+    )
+  ).getTime();
+
   holderHistory = normalizeHistory(history);
 
+  reclaimState =
+    reclaim &&
+    reclaim.reclaim_token === localReclaimToken &&
+    new Date(
+      pick(reclaim, ["expires_at"], 0)
+    ).getTime() > Date.now()
+      ? {
+          previousContribution: Number(
+            pick(
+              reclaim,
+              ["previous_contribution", "contribution"],
+              0
+            )
+          ),
+          expiresAt: new Date(
+            pick(reclaim, ["expires_at"], 0)
+          ).getTime(),
+          previousHolder: normalizeHolder(reclaim),
+        }
+      : null;
 
-console.info(
-  "[The Spot] Local reclaim token exists:",
-  Boolean(localReclaimToken)
-);
+  console.log(
+    "[The Spot] Final reclaim state:",
+    reclaimState
+  );
 
-console.log(
-  "[The Spot] Local reclaim token exists:",
-  Boolean(localReclaimToken)
-);
-
-reclaimState =
-  reclaim &&
-  localReclaimToken &&
-  reclaim.reclaim_token === localReclaimToken &&
-  new Date(pick(reclaim, ["expires_at"], 0)).getTime() > Date.now()
-    ? {
-        previousContribution: Number(
-          pick(reclaim, ["previous_contribution", "contribution"], 0)
-        ),
-        expiresAt: new Date(
-          pick(reclaim, ["expires_at"], 0)
-        ).getTime(),
-        previousHolder: normalizeHolder(reclaim),
-      }
-    : null;
-
-console.log("[The Spot] Final reclaim state:", reclaimState);
-
-render();
+  render();
 }
-function openTakeover() {
-  updateOfferLabels();
-  $("modal").classList.add("open");
-  $("formView").classList.remove("hidden");
-  $("confirmView").classList.remove("visible");
-  $("successView").classList.remove("visible");
-  $("infoView").classList.remove("visible");
-}
-render();
 function reviewTakeover() {
   const offer = Number($("offer").value);
   if (!$("name").value.trim() || !$("username").value.trim()) return showError("Add a display name and username to continue.");
