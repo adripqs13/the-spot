@@ -198,6 +198,13 @@ if (reclaimError) {
 
 console.info("[The Spot] Local reclaim token exists:", Boolean(localReclaimToken));
 
+const localReclaimToken = localStorage.getItem("theSpotReclaimToken");
+
+console.log(
+  "[The Spot] Local reclaim token exists:",
+  Boolean(localReclaimToken)
+);
+
 reclaimState =
   reclaim &&
   localReclaimToken &&
@@ -212,6 +219,8 @@ reclaimState =
         previousHolder: normalizeHolder(reclaim),
       }
     : null;
+
+console.log("[The Spot] Final reclaim state:", reclaimState);
 }
 function openTakeover() {
   updateOfferLabels();
@@ -221,6 +230,7 @@ function openTakeover() {
   $("successView").classList.remove("visible");
   $("infoView").classList.remove("visible");
 }
+render();
 function reviewTakeover() {
   const offer = Number($("offer").value);
   if (!$("name").value.trim() || !$("username").value.trim()) return showError("Add a display name and username to continue.");
