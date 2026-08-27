@@ -196,9 +196,12 @@ if (reclaimError) {
   holderHistory = normalizeHistory(history);
   const localReclaimToken = localStorage.getItem("theSpotReclaimToken");
 
-console.info("[The Spot] Local reclaim token exists:", Boolean(localReclaimToken));
-
 const localReclaimToken = localStorage.getItem("theSpotReclaimToken");
+
+console.info(
+  "[The Spot] Local reclaim token exists:",
+  Boolean(localReclaimToken)
+);
 
 console.log(
   "[The Spot] Local reclaim token exists:",
@@ -221,6 +224,8 @@ reclaimState =
     : null;
 
 console.log("[The Spot] Final reclaim state:", reclaimState);
+
+render();
 }
 function openTakeover() {
   updateOfferLabels();
