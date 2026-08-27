@@ -190,6 +190,22 @@ async function loadRemoteState() {
 
   let reclaim = null;
 
+  const reclaimTokenFromUrl = new URLSearchParams(
+  window.location.search
+).get("reclaim");
+
+if (reclaimTokenFromUrl) {
+  localStorage.setItem(
+    "theSpotReclaimToken",
+    reclaimTokenFromUrl
+  );
+
+  window.history.replaceState(
+    {},
+    document.title,
+    window.location.pathname
+  );
+}
   const localReclaimToken = localStorage.getItem(
     "theSpotReclaimToken"
   );
