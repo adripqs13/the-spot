@@ -502,6 +502,16 @@ $("logoInput").onchange = (event) => {
 setInterval(() => { $("timer").textContent = duration(Math.floor((Date.now() - reignStartTimestamp) / 1000)); renderReclaim(); }, 1000);
 setInterval(() => { simulatedVisitors = Math.max(200, Math.min(2000, simulatedVisitors + Math.floor(Math.random() * 41) - 20)); $("visitors").textContent = simulatedVisitors.toLocaleString("en-US"); }, 7000);
 
+const paymentStatus = new URLSearchParams(window.location.search).get("payment");
+
+if (paymentStatus === "success") {
+  window.history.replaceState({}, document.title, window.location.pathname);
+  setTimeout(() => {
+    loadRemoteState().catch((error) => {
+      console.error("[The Spot] Reload after payment failed", error);
+    });
+  }, 500);
+}
 setLoadingState();
 loadRemoteState().catch((error) => {
   console.error("[The Spot] Supabase load failed", error);
