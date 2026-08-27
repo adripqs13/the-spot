@@ -347,6 +347,9 @@ async function submitTakeover() {
 
   const previousUsername = currentHolder.username;
   const previousPrice = currentPrice;
+  const previousReclaimToken = localStorage.getItem(
+  "theSpotReclaimToken"
+);
 
   const response = await fetch(
     `${supabaseUrl}/functions/v1/super-function`,
