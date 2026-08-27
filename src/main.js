@@ -163,7 +163,6 @@ async function loadRemoteState() {
 
 const localReclaimToken = localStorage.getItem("theSpotReclaimToken");
 
-let reclaim = null;
 
 if (localReclaimToken) {
   const { data: reclaimData, error: reclaimError } = await supabase
