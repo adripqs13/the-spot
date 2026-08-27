@@ -332,6 +332,8 @@ async function submitReclaim() {
 
   const reclaimToken = localStorage.getItem(
     "theSpotReclaimToken"
+    console.log("[The Spot] RECLAIM TOKEN USED:", reclaimToken);
+console.log("[The Spot] RECLAIM STATE:", reclaimState);
   );
 
   if (!reclaimToken) {
