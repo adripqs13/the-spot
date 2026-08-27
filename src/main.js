@@ -161,13 +161,33 @@ async function loadRemoteState() {
   }
   let reclaim = null;
 
-const { data: reclaimData, error: reclaimError } = await supabase
-  .from("reclaim_windows")
-  .select("*")
-  .eq("active", true)
-  .order("expires_at", { ascending: false })
-  .limit(1)
-  .maybeSingle();
+const localReclaimToken = localStorage.getItem("theSpotReclaimToken");
+
+let reclaim = null;
+
+if (localReclaimToken) {
+  const { data: reclaimData, error: reclaimError } = await supabase
+    .from("reclaim_windows")
+    .select("*")
+    .eq("reclaim_token", localReclaimToken)
+    .eq("active", true)
+    .maybeSingle();
+
+  if (reclaimError) {
+    console.error(
+      "[The Spot] Matching reclaim window query failed",
+      reclaimError
+    );
+  } else {
+    reclaim = reclaimData;
+  }
+}
+
+console.info("[The Spot] Matching reclaim window:", {
+  found: Boolean(reclaim),
+  tokenExists: Boolean(localReclaimToken),
+  expiresAt: reclaim?.expires_at || null,
+});
 
 if (reclaimError) {
   console.error("[The Spot] public.reclaim_windows query failed", reclaimError);
@@ -195,7 +215,6 @@ if (reclaimError) {
   reignStartTimestamp = new Date(pick(spot, ["reign_started_at"], new Date().toISOString())).getTime();
   holderHistory = normalizeHistory(history);
 
-const localReclaimToken = localStorage.getItem("theSpotReclaimToken");
 
 console.info(
   "[The Spot] Local reclaim token exists:",
