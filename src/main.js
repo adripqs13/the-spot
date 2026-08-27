@@ -194,14 +194,24 @@ if (reclaimError) {
   currentPrice = Number(pick(spot, ["current_price", "price", "amount"], 0));
   reignStartTimestamp = new Date(pick(spot, ["reign_started_at"], new Date().toISOString())).getTime();
   holderHistory = normalizeHistory(history);
-  reclaimState = reclaim && new Date(pick(reclaim, ["expires_at"], 0)).getTime() > Date.now()
+  const localReclaimToken = localStorage.getItem("theSpotReclaimToken");
+
+console.info("[The Spot] Local reclaim token exists:", Boolean(localReclaimToken));
+
+reclaimState =
+  reclaim &&
+  localReclaimToken &&
+  new Date(pick(reclaim, ["expires_at"], 0)).getTime() > Date.now()
     ? {
-        previousContribution: Number(pick(reclaim, ["previous_contribution", "contribution"], 0)),
-        expiresAt: new Date(pick(reclaim, ["expires_at"], 0)).getTime(),
+        previousContribution: Number(
+          pick(reclaim, ["previous_contribution", "contribution"], 0)
+        ),
+        expiresAt: new Date(
+          pick(reclaim, ["expires_at"], 0)
+        ).getTime(),
         previousHolder: normalizeHolder(reclaim),
       }
     : null;
-  render();
 }
 function openTakeover() {
   updateOfferLabels();
