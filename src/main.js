@@ -321,11 +321,21 @@ async function submitTakeover() {
 
   // Save the private reclaim token before going to Stripe.
   if (result.reclaimToken) {
-    localStorage.setItem(
-      "theSpotReclaimToken",
-      result.reclaimToken
-    );
-  }
+  console.log(
+    "[The Spot] Saving reclaim token:",
+    result.reclaimToken
+  );
+
+  localStorage.setItem(
+    "theSpotReclaimToken",
+    result.reclaimToken
+  );
+
+  console.log(
+    "[The Spot] Token saved:",
+    localStorage.getItem("theSpotReclaimToken")
+  );
+}
   window.location.href = result.url;
 }
   
