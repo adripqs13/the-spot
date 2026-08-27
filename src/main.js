@@ -411,6 +411,12 @@ async function submitTakeover() {
     localStorage.getItem("theSpotReclaimToken")
   );
 }
+  if (previousReclaimToken) {
+  console.log(
+    "[The Spot] Previous holder reclaim token preserved:",
+    previousReclaimToken
+  );
+}
   window.location.href = result.url;
 }
   
