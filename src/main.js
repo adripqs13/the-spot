@@ -210,6 +210,7 @@ console.log(
 reclaimState =
   reclaim &&
   localReclaimToken &&
+  reclaim.reclaim_token === localReclaimToken &&
   new Date(pick(reclaim, ["expires_at"], 0)).getTime() > Date.now()
     ? {
         previousContribution: Number(
