@@ -194,7 +194,6 @@ if (reclaimError) {
   currentPrice = Number(pick(spot, ["current_price", "price", "amount"], 0));
   reignStartTimestamp = new Date(pick(spot, ["reign_started_at"], new Date().toISOString())).getTime();
   holderHistory = normalizeHistory(history);
-  const localReclaimToken = localStorage.getItem("theSpotReclaimToken");
 
 const localReclaimToken = localStorage.getItem("theSpotReclaimToken");
 
