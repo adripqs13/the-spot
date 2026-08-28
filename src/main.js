@@ -239,6 +239,10 @@ if (reclaimTokenFromUrl) {
       : reclaimData || null;
   }
 }
+console.log("[The Spot] RPC reclaim result:", {
+  data: reclaimData,
+  error: reclaimError,
+});
 
   console.info("[The Spot] Matching reclaim window:", {
     found: Boolean(reclaim),
