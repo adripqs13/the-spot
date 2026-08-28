@@ -208,9 +208,26 @@ function setUnavailableState(message) {
   showError(message);
 }
 function renderLogo() {
-  $("logoFrame").innerHTML = currentHolder?.logoDataUrl
-    ? `<img src="${currentHolder.logoDataUrl}" alt="Current holder logo">`
-    : '<span class="logo-placeholder">✦</span>';
+  const logoFrame = $("logoFrame");
+
+  if (!logoFrame) return;
+
+  const logoUrl = currentHolder?.logoDataUrl;
+
+  console.log("[The Spot] Rendering logo:", logoUrl);
+
+  if (logoUrl) {
+    logoFrame.innerHTML = `
+      <img
+        src="${logoUrl}"
+        alt="Current holder logo"
+        style="width:100%;height:100%;object-fit:contain;"
+      >
+    `;
+  } else {
+    logoFrame.innerHTML =
+      '<span class="logo-placeholder">✦</span>';
+  }
 }
 function renderHistory() {
   const rows = (list) => list.map((item) =>
@@ -237,7 +254,7 @@ function renderReclaim() {
 }
 function render() {
   if (!currentHolder) return;
-  $("holder").textContent = "@" + currentHolder.username;
+  $("holder").textContent = currentHolder.displayName;
   $("description").textContent = currentHolder.description;
   $("price").textContent = Number(currentPrice).toLocaleString("en-US");
   $("currentPrice").textContent = money(currentPrice);
