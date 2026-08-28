@@ -158,11 +158,19 @@ async function loadRemoteState() {
 
   console.info("[The Spot] Executing public.spot query");
 
-  const { data: spot, error: spotError } = await supabase
-    .from("spot")
-    .select("*")
-    .limit(1)
-    .maybeSingle();
+  const {
+  data: reclaimData,
+  error: reclaimError,
+} = await supabase.rpc(
+  "get_my_reclaim_window",
+  {
+    p_reclaim_token: localReclaimToken,
+  }
+);
+
+const reclaimRow = Array.isArray(reclaimData)
+  ? reclaimData[0] || null
+  : reclaimData || null;
 
   if (spotError) throw spotError;
 
@@ -232,8 +240,8 @@ if (reclaimTokenFromUrl) {
         reclaimError
       );
     } else {
-      reclaim = reclaimData;
-    }
+  reclaim = reclaimRow;
+}
   }
 
   console.info("[The Spot] Matching reclaim window:", {
