@@ -234,10 +234,14 @@ if (reclaimTokenFromUrl) {
       reclaimError
     );
   } else {
-    reclaim = Array.isArray(reclaimData)
-      ? reclaimData[0] || null
-      : reclaimData || null;
-  }
+  console.log("[The Spot] RAW RPC DATA:", reclaimData);
+
+  reclaim = Array.isArray(reclaimData)
+    ? reclaimData[0] || null
+    : reclaimData || null;
+
+  console.log("[The Spot] RECLAIM ASSIGNED:", reclaim);
+}
 }
 
 
