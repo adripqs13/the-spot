@@ -385,6 +385,18 @@ if (reclaimTokenFromUrl) {
 
   render();
 }
+setInterval(() => {
+  const elapsedSeconds = Math.max(
+    0,
+    Math.floor((Date.now() - reignStartTimestamp) / 1000)
+  );
+
+  const timer = $("timer");
+  if (timer) {
+    timer.textContent = duration(elapsedSeconds);
+  }
+}, 1000);
+
 function openTakeover() {
   updateOfferLabels();
   $("modal").classList.add("open");
