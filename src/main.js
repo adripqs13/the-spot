@@ -144,70 +144,7 @@ function updateOfferLabels() {
   $("offerError").textContent = "";
 }
 async function loadRemoteState() {
-    const paymentSessionId = new URLSearchParams(
-    window.location.search
-  ).get("session_id");
-
-  const paymentStatus = new URLSearchParams(
-    window.location.search
-  ).get("payment");
-
-  if (
-    paymentStatus === "success" &&
-    paymentSessionId &&
-    supabase
-  ) {
-    try {
-      console.log(
-        "[The Spot] Recovering reclaim token from Stripe session"
-      );
-
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/super-function`,
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${supabasePublishableKey}`,
-            "apikey": supabasePublishableKey,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            type: "get_reclaim_token",
-            sessionId: paymentSessionId,
-          }),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok || !result.reclaimToken) {
-        throw new Error(
-          result.error ||
-          "Could not recover reclaim token"
-        );
-      }
-
-      localStorage.setItem(
-        "theSpotReclaimToken",
-        result.reclaimToken
-      );
-
-      console.log(
-        "[The Spot] Reclaim token recovered successfully"
-      );
-
-      window.history.replaceState(
-        {},
-        document.title,
-        window.location.pathname
-      );
-    } catch (error) {
-      console.error(
-        "[The Spot] Could not recover reclaim token:",
-        error
-      );
-    }
-  }
+    
   if (!supabase) {
     throw new Error(
       "Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY."
