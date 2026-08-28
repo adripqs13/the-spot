@@ -277,11 +277,10 @@ if (reclaimTokenFromUrl) {
   holderHistory = normalizeHistory(history);
 
   reclaimState =
-    reclaim &&
-    reclaim.reclaim_token === localReclaimToken &&
-    new Date(
-      pick(reclaim, ["expires_at"], 0)
-    ).getTime() > Date.now()
+  reclaim &&
+  new Date(
+    pick(reclaim, ["expires_at"], 0)
+  ).getTime() > Date.now()
       ? {
           previousContribution: Number(
             pick(
