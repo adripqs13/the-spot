@@ -218,25 +218,27 @@ if (reclaimTokenFromUrl) {
   );
 
   if (localReclaimToken) {
-    const {
-  data: reclaimData,
-  error: reclaimError,
-} = await supabase
-  .from("reclaim_windows")
-  .select("*")
-  .eq("reclaim_token", localReclaimToken)
-  .eq("active", true)
-  .maybeSingle();
-
-if (reclaimError) {
-  console.error(
-    "[The Spot] Matching reclaim window query failed",
-    reclaimError
+  const {
+    data: reclaimData,
+    error: reclaimError,
+  } = await supabase.rpc(
+    "get_my_reclaim_window",
+    {
+      p_reclaim_token: localReclaimToken,
+    }
   );
-} else {
-  reclaim = reclaimData;
-}
+
+  if (reclaimError) {
+    console.error(
+      "[The Spot] Matching reclaim window query failed",
+      reclaimError
+    );
+  } else {
+    reclaim = Array.isArray(reclaimData)
+      ? reclaimData[0] || null
+      : reclaimData || null;
   }
+}
 
   console.info("[The Spot] Matching reclaim window:", {
     found: Boolean(reclaim),
