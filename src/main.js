@@ -126,13 +126,41 @@ function pick(row, keys, fallback = "") {
   return fallback;
 }
 function normalizeHolder(row) {
-  const displayName = pick(row, ["display_name", "displayName", "holder_name"], "Unknown");
+  const displayName = pick(
+    row,
+    ["display_name", "displayName", "holder_name"],
+    "Unknown"
+  );
+
   return {
     displayName,
-    username: String(pick(row, ["username", "x_username", "holder_username"], displayName)).replace(/^@/, ""),
-    website: pick(row, ["holder_website", "website", "website_url"], "https://example.com"),
-    description: String(pick(row, ["description", "promotional_description"], "")).slice(0, 120),
-    logoDataUrl: pick(row, ["holder_logo_url", "logo_url", "logo_data_url", "logo"], null),
+    username: String(
+      pick(
+        row,
+        ["username", "x_username", "holder_username", "holder_x_username"],
+        displayName
+      )
+    ).replace(/^@/, ""),
+
+    website: pick(
+      row,
+      ["holder_website", "website", "website_url"],
+      "https://example.com"
+    ),
+
+    description: String(
+      pick(
+        row,
+        ["holder_description", "description", "promotional_description"],
+        ""
+      )
+    ).slice(0, 120),
+
+    logoDataUrl: pick(
+      row,
+      ["holder_logo_url", "logo_url", "logo_data_url", "logo"],
+      null
+    ),
   };
 }
 function normalizeHistory(rows) {
