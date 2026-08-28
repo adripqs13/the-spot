@@ -168,9 +168,7 @@ async function loadRemoteState() {
   }
 );
 
-const reclaimRow = Array.isArray(reclaimData)
-  ? reclaimData[0] || null
-  : reclaimData || null;
+
 
   if (spotError) throw spotError;
 
