@@ -601,22 +601,60 @@ $("reclaimBtn").onclick = submitReclaim;
 $("learnLink").onclick = (event) => { event.preventDefault(); $("modal").classList.add("open"); $("formView").classList.add("hidden"); $("infoView").classList.add("visible"); };
 $("closeInfo").onclick = () => $("modal").classList.remove("open");
 $("closeSuccess").onclick = () => $("modal").classList.remove("open");
-$("logoInput").onchange = (event) => {
+$("logoInput").onchange = async (event) => {
   const file = event.target.files[0];
-  
-setInterval(() => { $("timer").textContent = duration(Math.floor((Date.now() - reignStartTimestamp) / 1000)); renderReclaim(); }, 1000);
-setInterval(() => { simulatedVisitors = Math.max(200, Math.min(2000, simulatedVisitors + Math.floor(Math.random() * 41) - 20)); $("visitors").textContent = simulatedVisitors.toLocaleString("en-US"); }, 7000);
 
-const paymentStatus = new URLSearchParams(window.location.search).get("payment");
+  if (!file) return;
 
-if (paymentStatus === "success") {
-  window.history.replaceState({}, document.title, window.location.pathname);
-  setTimeout(() => {
-    loadRemoteState().catch((error) => {
-      console.error("[The Spot] Reload after payment failed", error);
-    });
-  }, 500);
-}
+  if (
+    !["image/png", "image/jpeg", "image/webp"].includes(file.type)
+  ) {
+    event.target.value = "";
+    return showError(
+      "Please choose a PNG, JPG, JPEG, or WebP image."
+    );
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    event.target.value = "";
+    return showError(
+      "That image is larger than the 5 MB demo limit."
+    );
+  }
+
+  try {
+    $("review").disabled = true;
+
+    const previewUrl = URL.createObjectURL(file);
+
+    $("previewImage").src = previewUrl;
+    $("imagePreview").classList.add("visible");
+
+    selectedLogoUrl = await uploadLogo(file);
+
+    console.log(
+      "[The Spot] Logo uploaded:",
+      selectedLogoUrl
+    );
+
+  } catch (error) {
+    console.error(
+      "[The Spot] Logo upload error:",
+      error
+    );
+
+    selectedLogoUrl = null;
+
+    showError(
+      error instanceof Error
+        ? error.message
+        : "Could not upload logo."
+    );
+
+  } finally {
+    $("review").disabled = false;
+  }
+};
 setLoadingState();
 loadRemoteState().catch((error) => {
   console.error("[The Spot] Supabase load failed", error);
