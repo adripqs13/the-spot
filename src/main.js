@@ -19,7 +19,6 @@ let reignStartTimestamp = Date.now();
 let holderHistory = [];
 let reclaimState = null;
 let simulatedVisitors = 1284;
-let selectedLogoDataUrl = null;
 let selectedLogoUrl = null;
 
 function money(value) { return "$" + Number(value || 0).toLocaleString("en-US"); }
@@ -55,6 +54,60 @@ async function uploadLogo(file) {
 
   return data.publicUrl;
 }
+$("logoInput").onchange = async (event) => {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  if (
+    !["image/png", "image/jpeg", "image/webp"].includes(file.type)
+  ) {
+    event.target.value = "";
+    return showError(
+      "Please choose a PNG, JPG, JPEG, or WebP image."
+    );
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    event.target.value = "";
+    return showError(
+      "That image is larger than the 5 MB demo limit."
+    );
+  }
+
+  try {
+    $("review").disabled = true;
+
+    const previewUrl = URL.createObjectURL(file);
+
+    $("previewImage").src = previewUrl;
+    $("imagePreview").classList.add("visible");
+
+    selectedLogoUrl = await uploadLogo(file);
+
+    console.log(
+      "[The Spot] Logo uploaded:",
+      selectedLogoUrl
+    );
+
+  } catch (error) {
+    console.error(
+      "[The Spot] Logo upload error:",
+      error
+    );
+
+    selectedLogoUrl = null;
+
+    showError(
+      error instanceof Error
+        ? error.message
+        : "Could not upload logo."
+    );
+
+  } finally {
+    $("review").disabled = false;
+  }
+};
 function duration(seconds) {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
