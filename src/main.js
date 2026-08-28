@@ -158,15 +158,11 @@ async function loadRemoteState() {
 
   console.info("[The Spot] Executing public.spot query");
 
-  const {
-  data: reclaimData,
-  error: reclaimError,
-} = await supabase.rpc(
-  "get_my_reclaim_window",
-  {
-    p_reclaim_token: localReclaimToken,
-  }
-);
+  const { data: spot, error: spotError } = await supabase
+  .from("spot")
+  .select("*")
+  .limit(1)
+  .maybeSingle();
 
 
 
