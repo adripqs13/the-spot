@@ -385,7 +385,8 @@ async function submitTakeover() {
             .trim()
             .slice(0, 120),
         logoUrl:
-          selectedLogoDataUrl || ""
+  selectedLogoDataUrl || "",
+reclaimToken: previousReclaimToken
       })
     }
   );
