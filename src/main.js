@@ -355,12 +355,6 @@ async function submitTakeover() {
 
   $("review").disabled = true;
 
-  const previousUsername = currentHolder.username;
-  const previousPrice = currentPrice;
-  const previousReclaimToken = localStorage.getItem(
-  "theSpotReclaimToken"
-);
-
   const response = await fetch(
     `${supabaseUrl}/functions/v1/super-function`,
     {
@@ -385,14 +379,17 @@ async function submitTakeover() {
             .trim()
             .slice(0, 120),
         logoUrl:
-  selectedLogoDataUrl || "",
-reclaimToken: previousReclaimToken
+          selectedLogoDataUrl || ""
       })
     }
   );
 
   const result = await response.json();
-  console.log("[The Spot] Stripe checkout result:", result);
+
+  console.log(
+    "[The Spot] Stripe checkout result:",
+    result
+  );
 
   $("review").disabled = false;
 
@@ -405,41 +402,23 @@ reclaimToken: previousReclaimToken
     );
   }
 
-  // Save the private reclaim token before going to Stripe.
-console.log(
-  "[The Spot] Checkout result:",
-  result
-);
-
-if (result.reclaimToken) {
-  console.log(
-    "[The Spot] Saving reclaim token:",
-    result.reclaimToken
-  );
-
-  localStorage.setItem(
-    "theSpotReclaimToken",
-    result.reclaimToken
-  );
+  /*
+   * IMPORTANT:
+   *
+   * Do NOT save the new reclaim token here.
+   *
+   * The token belongs to the new holder and is only
+   * recovered after Stripe confirms the payment.
+   *
+   * The previous holder's reclaim token must also
+   * NOT be sent to the takeover checkout.
+   */
 
   console.log(
-    "[The Spot] Token saved:",
-    localStorage.getItem("theSpotReclaimToken")
+    "[The Spot] Takeover checkout created successfully."
   );
-} else {
-  console.error(
-    "[The Spot] NO reclaim token received from super-function"
-  );
-}
 
-if (previousReclaimToken) {
-  console.log(
-    "[The Spot] Previous holder reclaim token preserved:",
-    previousReclaimToken
-  );
-}
-
-window.location.href = result.url;
+  window.location.href = result.url;
 }
   
 async function submitReclaim() {
