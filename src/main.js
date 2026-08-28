@@ -20,8 +20,41 @@ let holderHistory = [];
 let reclaimState = null;
 let simulatedVisitors = 1284;
 let selectedLogoDataUrl = null;
+let selectedLogoUrl = null;
 
 function money(value) { return "$" + Number(value || 0).toLocaleString("en-US"); }
+async function uploadLogo(file) {
+  if (!supabase) {
+    throw new Error("Supabase is not configured.");
+  }
+
+  const extension = file.name.split(".").pop()?.toLowerCase() || "png";
+
+  const filePath = `logos/${crypto.randomUUID()}.${extension}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("spot-logos")
+    .upload(filePath, file, {
+      contentType: file.type,
+      upsert: false,
+    });
+
+  if (uploadError) {
+    throw new Error(
+      `Could not upload logo: ${uploadError.message}`
+    );
+  }
+
+  const { data } = supabase.storage
+    .from("spot-logos")
+    .getPublicUrl(filePath);
+
+  if (!data?.publicUrl) {
+    throw new Error("Could not create public logo URL.");
+  }
+
+  return data.publicUrl;
+}
 function duration(seconds) {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
