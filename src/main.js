@@ -276,6 +276,7 @@ if (reclaimTokenFromUrl) {
 
   holderHistory = normalizeHistory(history);
 
+  console.log("[The Spot] RECLAIM BEFORE STATE:", reclaim);
   reclaimState =
   reclaim &&
   new Date(
