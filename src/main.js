@@ -405,7 +405,12 @@ async function submitTakeover() {
   }
 
   // Save the private reclaim token before going to Stripe.
-  if (result.reclaimToken) {
+console.log(
+  "[The Spot] Checkout result:",
+  result
+);
+
+if (result.reclaimToken) {
   console.log(
     "[The Spot] Saving reclaim token:",
     result.reclaimToken
@@ -420,15 +425,20 @@ async function submitTakeover() {
     "[The Spot] Token saved:",
     localStorage.getItem("theSpotReclaimToken")
   );
+} else {
+  console.error(
+    "[The Spot] NO reclaim token received from super-function"
+  );
 }
-  if (previousReclaimToken) {
+
+if (previousReclaimToken) {
   console.log(
     "[The Spot] Previous holder reclaim token preserved:",
     previousReclaimToken
   );
 }
-  window.location.href = result.url;
-}
+
+window.location.href = result.url;
   
 async function submitReclaim() {
   if (!reclaimState) return;
