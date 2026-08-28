@@ -461,7 +461,7 @@ async function submitTakeover() {
             .trim()
             .slice(0, 120),
         logoUrl:
-          selectedLogoDataUrl || ""
+  selectedLogoUrl || ""
       })
     }
   );
@@ -603,13 +603,7 @@ $("closeInfo").onclick = () => $("modal").classList.remove("open");
 $("closeSuccess").onclick = () => $("modal").classList.remove("open");
 $("logoInput").onchange = (event) => {
   const file = event.target.files[0];
-  if (!file) return;
-  if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) return showError("Please choose a PNG, JPG, JPEG, or WebP image.");
-  if (file.size > 5 * 1024 * 1024) return showError("That image is larger than the 5 MB demo limit.");
-  const reader = new FileReader();
-  reader.onload = () => { selectedLogoDataUrl = reader.result; $("previewImage").src = reader.result; $("imagePreview").classList.add("visible"); };
-  reader.readAsDataURL(file);
-};
+  
 setInterval(() => { $("timer").textContent = duration(Math.floor((Date.now() - reignStartTimestamp) / 1000)); renderReclaim(); }, 1000);
 setInterval(() => { simulatedVisitors = Math.max(200, Math.min(2000, simulatedVisitors + Math.floor(Math.random() * 41) - 20)); $("visitors").textContent = simulatedVisitors.toLocaleString("en-US"); }, 7000);
 
