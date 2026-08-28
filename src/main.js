@@ -130,9 +130,9 @@ function normalizeHolder(row) {
   return {
     displayName,
     username: String(pick(row, ["username", "x_username", "holder_username"], displayName)).replace(/^@/, ""),
-    website: pick(row, ["website", "website_url"], "https://example.com"),
+    website: pick(row, ["holder_website", "website", "website_url"], "https://example.com"),
     description: String(pick(row, ["description", "promotional_description"], "")).slice(0, 120),
-    logoDataUrl: pick(row, ["logo_url", "logo_data_url", "logo"], null),
+    logoDataUrl: pick(row, ["holder_logo_url", "logo_url", "logo_data_url", "logo"], null),
   };
 }
 function normalizeHistory(rows) {
