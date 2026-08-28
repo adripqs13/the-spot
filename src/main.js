@@ -439,6 +439,7 @@ if (previousReclaimToken) {
 }
 
 window.location.href = result.url;
+}
   
 async function submitReclaim() {
   if (!reclaimState) return;
