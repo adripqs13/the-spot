@@ -144,7 +144,6 @@ function updateOfferLabels() {
   $("offerError").textContent = "";
 }
 async function loadRemoteState() {
-    
   if (!supabase) {
     throw new Error(
       "Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY."
@@ -160,12 +159,10 @@ async function loadRemoteState() {
   console.info("[The Spot] Executing public.spot query");
 
   const { data: spot, error: spotError } = await supabase
-  .from("spot")
-  .select("*")
-  .limit(1)
-  .maybeSingle();
-
-
+    .from("spot")
+    .select("*")
+    .limit(1)
+    .maybeSingle();
 
   if (spotError) throw spotError;
 
@@ -219,32 +216,25 @@ if (reclaimTokenFromUrl) {
   );
 
   if (localReclaimToken) {
-  const {
-    data: reclaimData,
-    error: reclaimError,
-  } = await supabase.rpc(
-    "get_my_reclaim_window",
-    {
-      p_reclaim_token: localReclaimToken,
+    const {
+      data: reclaimData,
+      error: reclaimError,
+    } = await supabase
+      .from("reclaim_windows")
+      .select("*")
+      .eq("reclaim_token", localReclaimToken)
+      .eq("active", true)
+      .maybeSingle();
+
+    if (reclaimError) {
+      console.error(
+        "[The Spot] Matching reclaim window query failed",
+        reclaimError
+      );
+    } else {
+      reclaim = reclaimData;
     }
-  );
-
-  if (reclaimError) {
-  console.error(
-    "[The Spot] Matching reclaim window query failed",
-    reclaimError
-  );
-} else {
-  reclaim = Array.isArray(reclaimData)
-    ? reclaimData[0] || null
-    : reclaimData || null;
-
-  if (!reclaim) {
-    localStorage.removeItem("theSpotReclaimToken");
   }
-}
-}
-
 
   console.info("[The Spot] Matching reclaim window:", {
     found: Boolean(reclaim),
@@ -281,12 +271,12 @@ if (reclaimTokenFromUrl) {
 
   holderHistory = normalizeHistory(history);
 
-  console.log("[The Spot] RECLAIM BEFORE STATE:", reclaim);
   reclaimState =
-  reclaim &&
-  new Date(
-    pick(reclaim, ["expires_at"], 0)
-  ).getTime() > Date.now()
+    reclaim &&
+    reclaim.reclaim_token === localReclaimToken &&
+    new Date(
+      pick(reclaim, ["expires_at"], 0)
+    ).getTime() > Date.now()
       ? {
           previousContribution: Number(
             pick(
@@ -355,6 +345,12 @@ async function submitTakeover() {
 
   $("review").disabled = true;
 
+  const previousUsername = currentHolder.username;
+  const previousPrice = currentPrice;
+  const previousReclaimToken = localStorage.getItem(
+  "theSpotReclaimToken"
+);
+
   const response = await fetch(
     `${supabaseUrl}/functions/v1/super-function`,
     {
@@ -385,11 +381,7 @@ async function submitTakeover() {
   );
 
   const result = await response.json();
-
-  console.log(
-    "[The Spot] Stripe checkout result:",
-    result
-  );
+  console.log("[The Spot] Stripe checkout result:", result);
 
   $("review").disabled = false;
 
@@ -402,22 +394,29 @@ async function submitTakeover() {
     );
   }
 
-  /*
-   * IMPORTANT:
-   *
-   * Do NOT save the new reclaim token here.
-   *
-   * The token belongs to the new holder and is only
-   * recovered after Stripe confirms the payment.
-   *
-   * The previous holder's reclaim token must also
-   * NOT be sent to the takeover checkout.
-   */
-
+  // Save the private reclaim token before going to Stripe.
+  if (result.reclaimToken) {
   console.log(
-    "[The Spot] Takeover checkout created successfully."
+    "[The Spot] Saving reclaim token:",
+    result.reclaimToken
   );
 
+  localStorage.setItem(
+    "theSpotReclaimToken",
+    result.reclaimToken
+  );
+
+  console.log(
+    "[The Spot] Token saved:",
+    localStorage.getItem("theSpotReclaimToken")
+  );
+}
+  if (previousReclaimToken) {
+  console.log(
+    "[The Spot] Previous holder reclaim token preserved:",
+    previousReclaimToken
+  );
+}
   window.location.href = result.url;
 }
   
