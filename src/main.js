@@ -223,22 +223,22 @@ if (reclaimTokenFromUrl) {
 
   if (localReclaimToken) {
     const {
-      data: reclaimData,
-      error: reclaimError,
-    } = await supabase
-      .from("reclaim_windows")
-      .select("*")
-      .eq("reclaim_token", localReclaimToken)
-      .eq("active", true)
-      .maybeSingle();
+  data: reclaimData,
+  error: reclaimError,
+} = await supabase
+  .from("reclaim_windows")
+  .select("*")
+  .eq("reclaim_token", localReclaimToken)
+  .eq("active", true)
+  .maybeSingle();
 
-    if (reclaimError) {
-      console.error(
-        "[The Spot] Matching reclaim window query failed",
-        reclaimError
-      );
-    } else {
-  reclaim = reclaimRow;
+if (reclaimError) {
+  console.error(
+    "[The Spot] Matching reclaim window query failed",
+    reclaimError
+  );
+} else {
+  reclaim = reclaimData;
 }
   }
 
